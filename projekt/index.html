@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="de" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="assets/gsap.min.js"></script>
+<style>
+@font-face{font-family:Anton;src:url(assets/fonts/anton-latin-400-normal.woff2) format("woff2");font-weight:400}
+@font-face{font-family:Inter;src:url(assets/fonts/inter-latin-600-normal.woff2) format("woff2");font-weight:600}
+@font-face{font-family:Inter;src:url(assets/fonts/inter-latin-800-normal.woff2) format("woff2");font-weight:800}
+@font-face{font-family:Inter;src:url(assets/fonts/inter-latin-900-normal.woff2) format("woff2");font-weight:900}
+:root{--ground:#0A0C18;--ink:#F6F4EE;--yellow:#FFD60A;--pink:#FF3D7F;--cyan:#3DE0FF;--green:#34E07A;--muted:#8D93B5;--font-display:Anton,sans-serif;--font-body:Inter,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--ground)}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:var(--font-body);color:var(--ink)}
+.clip{position:absolute;inset:0}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0;transform:translate(115px,200px) scale(.72)}
+.layer{position:absolute;inset:0}
+/* background */
+.blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.55}
+#b1{width:900px;height:900px;left:-300px;top:-200px;background:#3B1D8F}
+#b2{width:800px;height:800px;right:-320px;top:700px;background:#0E5E7A}
+#b3{width:700px;height:700px;left:100px;top:1300px;background:#6A1446;opacity:.4}
+#grid{position:absolute;inset:-200px;background-image:linear-gradient(rgba(255,255,255,.045) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.045) 2px,transparent 2px);background-size:90px 90px}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,transparent 40%,rgba(0,0,0,.65) 100%)}
+#grain{position:absolute;inset:0;opacity:.09;mix-blend-mode:overlay}
+/* chrome */
+#topbar{data:0;position:absolute;left:60px;right:60px;top:70px;height:10px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden}
+#topfill{width:100%;height:100%;background:linear-gradient(90deg,var(--yellow),var(--pink));transform-origin:0 50%;transform:scaleX(0)}
+#pill{position:absolute;top:296px;left:504px;transform:translateX(-50%);padding:10px 26px;border-radius:40px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);font:800 30px var(--font-body);letter-spacing:.14em;white-space:nowrap}
+#pill b{color:var(--yellow)}
+/* generic */
+.center{position:absolute;left:0;right:0;display:flex;justify-content:center}
+.head{font-family:var(--font-display);text-transform:uppercase;line-height:.95;text-align:center;letter-spacing:.01em}
+.card{position:absolute;border-radius:36px;background:rgba(18,21,42,.92);border:3px solid rgba(255,255,255,.12);box-shadow:0 40px 90px rgba(0,0,0,.55)}
+.hl{color:var(--yellow)}
+/* captions */
+#caps{position:absolute;left:120px;width:768px;top:1062px;height:186px}
+.cap{position:absolute;left:0;right:0;top:0;display:flex;flex-wrap:wrap;justify-content:center;gap:0 30px;opacity:0;font:900 70px/1.12 var(--font-body);text-transform:uppercase;letter-spacing:-.01em;text-align:center}
+.cap span{display:inline-block;color:#fff;-webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:0 8px 0 rgba(0,0,0,.6),0 0 30px rgba(0,0,0,.5)}
+/* S1 */
+#tv{left:110px;top:640px;width:860px;height:520px;overflow:hidden;background:linear-gradient(160deg,#1d2350,#0b0e22)}
+#tvimg{position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(255,61,127,.55),transparent 55%),radial-gradient(circle at 75% 65%,rgba(61,224,255,.45),transparent 55%)}
+#tvtitle{position:absolute;left:44px;top:40px;font:800 42px var(--font-body);color:rgba(255,255,255,.85);letter-spacing:.06em}
+#tvnext{position:absolute;left:44px;bottom:44px;right:44px;display:flex;align-items:center;gap:30px}
+#ring{width:150px;height:150px;position:relative}
+#ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 72px var(--font-body);opacity:0}
+#tvnextlbl{font:800 52px/1.15 var(--font-body)}
+#tvnextlbl small{display:block;font:600 40px var(--font-body);color:rgba(255,255,255,.6)}
+#h1{top:300px;font-size:140px}
+/* S2 */
+#brain{position:absolute;left:290px;top:290px;width:500px;height:440px}
+.pulse{position:absolute;left:540px;top:510px;width:10px;height:10px;border-radius:50%;border:5px solid var(--pink);transform:translate(-50%,-50%)}
+#stamp2{top:780px}
+#stamp2 .box{padding:20px 40px 10px;border:8px solid var(--yellow);border-radius:20px;color:var(--yellow);font:400 118px/1 var(--font-display);text-transform:uppercase;transform:rotate(-4deg);background:rgba(10,12,24,.75)}
+#sub2{top:1000px;font:800 46px var(--font-body);color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+/* S3 */
+#era{top:260px;font:400 210px/1 var(--font-display);color:transparent;-webkit-text-stroke:4px #E9C98B}
+#berlin{top:490px;font:800 50px var(--font-body);letter-spacing:.5em;color:#E9C98B;padding-left:.5em}
+#cafe{position:absolute;left:340px;top:590px;width:400px;height:420px}
+#nametag{left:150px;top:1030px;width:780px;height:150px;display:flex;align-items:center;gap:28px;padding:0 36px;background:#F3E6CC;color:#1A1410;border:none}
+#avatar{width:96px;height:96px;border-radius:50%;background:#1A1410;display:flex;align-items:center;justify-content:center;color:#F3E6CC;font:400 50px var(--font-display)}
+#nametag .t1{font:900 54px var(--font-body)}
+#nametag .t2{font:600 40px var(--font-body);color:#6B5A44;letter-spacing:.06em;text-transform:uppercase}
+/* S4 */
+#receipt{left:190px;top:300px;width:700px;height:820px;background:#FBFAF5;color:#15131c;border:none;border-radius:20px 20px 0 0;padding:56px 60px}
+#receipt:after{content:"";position:absolute;left:0;right:0;bottom:-30px;height:30px;background:linear-gradient(-45deg,transparent 15px,#FBFAF5 0) 0 0/30px 30px repeat-x,linear-gradient(45deg,transparent 15px,#FBFAF5 0) 0 0/30px 30px repeat-x}
+#receipt h3{font:900 46px var(--font-body);letter-spacing:.1em;text-align:center}
+#receipt .dash{border-top:5px dashed #c9c6bd;margin:30px 0}
+.row{display:flex;justify-content:space-between;font:800 50px var(--font-body);margin:26px 0;opacity:0}
+.row i{font-style:normal;color:#8a8577}
+#memory{position:absolute;left:60px;right:60px;bottom:60px;height:120px;border-radius:24px;background:#E6FBEF;border:4px solid var(--green);display:flex;align-items:center;justify-content:center;gap:18px;font:900 44px var(--font-body);color:#0d7a3c;opacity:0}
+#paid{position:absolute;left:150px;top:520px;padding:16px 40px 6px;border:12px solid #D21F33;border-radius:24px;color:#D21F33;font:400 150px/1 var(--font-display);transform:rotate(-12deg);opacity:0;background:rgba(255,255,255,.35)}
+#forgot{top:1140px;font:400 74px var(--font-display);text-transform:uppercase;color:var(--muted);opacity:0}
+/* S5 */
+.state{left:110px;width:860px;height:330px;display:flex;align-items:center;gap:44px;padding:0 54px}
+#open{top:290px;border-color:rgba(255,61,127,.6);background:rgba(60,14,36,.85)}
+#done{top:690px;border-color:rgba(52,224,122,.6);background:rgba(10,48,30,.85)}
+.state .ico{width:180px;height:180px;flex:none}
+.state .k{font:400 96px/1 var(--font-display);text-transform:uppercase}
+.state .v{font:800 42px var(--font-body);color:rgba(255,255,255,.72);margin-top:12px}
+#open .k{color:var(--pink)} #done .k{color:var(--green)}
+#stuck{position:absolute;right:40px;top:24px;font:900 40px var(--font-body);letter-spacing:.1em;color:var(--pink);opacity:.9}
+/* S6 */
+#player{left:90px;top:430px;width:900px;height:560px;overflow:hidden;background:#05060d}
+#scene6img{position:absolute;inset:0;background:radial-gradient(circle at 60% 40%,rgba(255,214,10,.35),transparent 50%),linear-gradient(180deg,#1a2148,#06070f)}
+#ep{position:absolute;left:44px;top:40px;font:800 42px var(--font-body);letter-spacing:.06em;color:rgba(255,255,255,.85)}
+#bar6{position:absolute;left:44px;right:44px;bottom:50px;height:14px;border-radius:8px;background:rgba(255,255,255,.2)}
+#fill6{position:absolute;inset:0;background:var(--pink);border-radius:8px;transform-origin:0 50%;transform:scaleX(.55)}
+#knob6{position:absolute;top:50%;left:0;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:#fff}
+#black6{position:absolute;inset:0;background:#000;opacity:0;display:flex;align-items:center;justify-content:center}
+.glitch{position:absolute;font:400 104px/1 var(--font-display);text-transform:uppercase;white-space:nowrap}
+#cliff{top:250px;font-size:120px}
+/* S7 */
+#timer{position:absolute;left:290px;top:270px;width:500px;height:500px}
+#timer svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.tnum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:400 160px var(--font-display);opacity:0}
+#go{top:850px}
+#go .btn{padding:40px 90px;border-radius:999px;background:var(--yellow);color:#111;font:900 64px var(--font-body);text-transform:uppercase;letter-spacing:.02em;box-shadow:0 14px 0 #B89400,0 30px 60px rgba(255,214,10,.35)}
+#two{top:1060px;font:800 50px var(--font-body);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+/* S8 */
+#task{left:110px;top:500px;width:860px;height:420px;padding:56px}
+#task .lbl{font:800 44px var(--font-body);color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+#pct{font:400 190px/1 var(--font-display);margin-top:20px}
+#bar8{position:absolute;left:56px;right:56px;bottom:60px;height:44px;border-radius:24px;background:rgba(255,255,255,.12);overflow:hidden}
+#fill8{position:absolute;inset:0;background:linear-gradient(90deg,var(--cyan),var(--green));transform-origin:0 50%;transform:scaleX(.08)}
+#check8{position:absolute;right:56px;top:56px;width:150px;height:150px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;opacity:0}
+#h8{top:250px;font-size:84px}
+#burst8{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+/* S9 */
+#h9{top:330px;font-size:150px}
+#follow{top:820px}
+#follow .btn{display:flex;align-items:center;gap:24px;padding:40px 80px;border-radius:999px;background:var(--pink);font:900 70px var(--font-body);text-transform:uppercase;box-shadow:0 0 0 0 rgba(255,61,127,.6),0 30px 70px rgba(255,61,127,.45)}
+#hand{position:absolute;left:640px;top:960px;width:150px;height:170px}
+#ring9{position:absolute;left:590px;top:840px;width:220px;height:220px;border-radius:50%;border:8px solid #fff;opacity:0}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="35" data-width="1080" data-height="1920">
+
+  <!-- BACKGROUND -->
+  <div id="bg" class="clip" data-start="0" data-duration="35">
+    <div class="blob" id="b1"></div><div class="blob" id="b2"></div><div class="blob" id="b3"></div>
+    <div id="grid"></div>
+    <svg id="grain" width="1080" height="1920"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+    <div id="vig"></div>
+  </div>
+
+  <div id="stage">
+  <!-- S1 HOOK -->
+  <div id="s1" class="clip" data-start="0" data-duration="3.0">
+    <div id="h1" class="center head"><div>Nur noch<br><span class="hl">eine Folge…</span></div></div>
+    <div id="tv" class="card">
+      <div id="tvimg"></div>
+      <div id="tvtitle">STAFFEL 2 · FOLGE 7 ENDE</div>
+      <div id="tvnext">
+        <div id="ring">
+          <svg width="150" height="150"><circle cx="75" cy="75" r="64" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="10"/><circle id="ringc" cx="75" cy="75" r="64" fill="none" stroke="#FFD60A" stroke-width="10" stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="0"/></svg>
+          <div class="num" id="n5">5</div><div class="num" id="n4">4</div><div class="num" id="n3">3</div>
+        </div>
+        <div id="tvnextlbl"><small>Automatisch weiter</small>Nächste Folge in…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2 ZEIGARNIK -->
+  <div id="s2" class="clip" data-start="3.0" data-duration="3.4">
+    <div class="pulse" id="p1"></div><div class="pulse" id="p2"></div><div class="pulse" id="p3"></div>
+    <svg id="brain" viewBox="0 0 500 440">
+      <defs><linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF77A8"/><stop offset="1" stop-color="#C21E5C"/></linearGradient></defs>
+      <g fill="url(#bg2)" stroke="#2a0815" stroke-width="10">
+        <circle cx="150" cy="170" r="95"/><circle cx="250" cy="120" r="100"/><circle cx="350" cy="170" r="95"/>
+        <circle cx="120" cy="260" r="85"/><circle cx="380" cy="260" r="85"/><circle cx="250" cy="260" r="110"/>
+      </g>
+      <g fill="url(#bg2)"><circle cx="150" cy="170" r="88"/><circle cx="250" cy="120" r="93"/><circle cx="350" cy="170" r="88"/><circle cx="120" cy="260" r="78"/><circle cx="380" cy="260" r="78"/><circle cx="250" cy="260" r="103"/></g>
+      <g fill="none" stroke="#2a0815" stroke-width="9" stroke-linecap="round">
+        <path d="M250 40 C230 120 270 200 250 360"/>
+        <path d="M140 140 q40 20 30 60 M360 140 q-40 20 -30 60 M120 270 q50 -10 70 30 M380 270 q-50 -10 -70 30 M200 90 q20 30 0 60 M300 90 q-20 30 0 60"/>
+      </g>
+      <path d="M220 360 q30 60 20 80 h30 q-10 -30 20 -80 z" fill="#C21E5C" stroke="#2a0815" stroke-width="9"/>
+      <g id="spark" fill="#FFD60A"><path d="M430 40 l12 30 30 12 -30 12 -12 30 -12 -30 -30 -12 30 -12z"/><path d="M60 70 l8 20 20 8 -20 8 -8 20 -8 -20 -20 -8 20 -8z"/></g>
+    </svg>
+    <div id="stamp2" class="center"><div class="box">Zeigarnik-Effekt</div></div>
+    <div id="sub2" class="center">Ein Trick deines Gehirns</div>
+  </div>
+
+  <!-- S3 BERLIN -->
+  <div id="s3" class="clip" data-start="6.4" data-duration="5.9">
+    <div id="era" class="center">1920er</div>
+    <div id="berlin" class="center">BERLIN · CAFÉ</div>
+    <svg id="cafe" viewBox="0 0 400 420">
+      <g fill="none" stroke="#E9C98B" stroke-width="10" stroke-linecap="round">
+        <path class="steam" d="M140 150 c-30 -40 30 -60 0 -110"/><path class="steam" d="M200 150 c-30 -40 30 -60 0 -110"/><path class="steam" d="M260 150 c-30 -40 30 -60 0 -110"/>
+      </g>
+      <path d="M70 190 h260 v80 a110 110 0 0 1 -110 110 h-40 a110 110 0 0 1 -110 -110z" fill="#F3E6CC" stroke="#1A1410" stroke-width="10"/>
+      <path d="M330 215 h20 a45 45 0 0 1 0 90 h-28" fill="none" stroke="#F3E6CC" stroke-width="22"/>
+      <rect x="40" y="378" width="320" height="22" rx="11" fill="#E9C98B"/>
+      <path d="M90 230 h220" stroke="#C9A86B" stroke-width="8"/>
+    </svg>
+    <div id="nametag" class="card"><div id="avatar">BZ</div><div><div class="t1">Bluma Zeigarnik</div><div class="t2">Psychologin</div></div></div>
+  </div>
+
+  <!-- S4 RECEIPT -->
+  <div id="s4" class="clip" data-start="12.3" data-duration="5.3">
+    <div id="receipt" class="card">
+      <h3>TISCH 4 · OFFEN</h3>
+      <div class="dash"></div>
+      <div class="row" id="r1"><span>2× Kaffee</span><i>5,20</i></div>
+      <div class="row" id="r2"><span>1× Strudel</span><i>3,90</i></div>
+      <div class="row" id="r3"><span>1× Kakao</span><i>2,80</i></div>
+      <div class="dash"></div>
+      <div id="memory"><svg width="56" height="56" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="#0d7a3c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Perfekt im Kopf</div>
+    </div>
+    <div id="paid" data-layout-allow-overlap>BEZAHLT</div>
+  </div>
+
+  <!-- S5 OPEN vs DONE -->
+  <div id="s5" class="clip" data-start="17.6" data-duration="4.1">
+    <div id="open" class="card state">
+      <svg class="ico" viewBox="0 0 180 180"><circle cx="90" cy="90" r="70" fill="none" stroke="rgba(255,61,127,.25)" stroke-width="18"/><circle id="spin" cx="90" cy="90" r="70" fill="none" stroke="#FF3D7F" stroke-width="18" stroke-linecap="round" stroke-dasharray="140 300" style="transform-origin:90px 90px"/></svg>
+      <div><div class="k">Unerledigt</div><div class="v">bleibt im Kopf hängen</div></div>
+      <div id="stuck">LOOP ∞</div>
+    </div>
+    <div id="done" class="card state">
+      <svg class="ico" viewBox="0 0 180 180"><circle cx="90" cy="90" r="78" fill="#34E07A"/><path id="tick5" d="M50 94 l28 28 52 -58" fill="none" stroke="#06331b" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="130" stroke-dashoffset="130"/></svg>
+      <div><div class="k">Erledigt</div><div class="v">Gehirn lässt los</div></div>
+    </div>
+  </div>
+
+  <!-- S6 CLIFFHANGER -->
+  <div id="s6" class="clip" data-start="21.7" data-duration="3.2">
+    <div id="player" class="card">
+      <div id="scene6img"></div>
+      <div id="ep">FOLGE 7 · LETZTE SZENE</div>
+      <div id="bar6"><div id="fill6"></div><div id="knob6"></div></div>
+      <div id="black6" data-layout-allow-overlap>
+        <div class="glitch" data-layout-allow-overlap id="g1" style="color:#3DE0FF">Fortsetzung folgt…</div>
+        <div class="glitch" data-layout-allow-overlap id="g2" style="color:#FF3D7F">Fortsetzung folgt…</div>
+        <div class="glitch" data-layout-allow-overlap id="g3" style="color:#fff">Fortsetzung folgt…</div>
+      </div>
+    </div>
+    <div id="cliff" class="center head"><div>Der <span class="hl">Cliffhanger</span></div></div>
+  </div>
+
+  <!-- S7 2 MINUTES -->
+  <div id="s7" class="clip" data-start="24.9" data-duration="3.8">
+    <div id="timer">
+      <svg width="500" height="500"><circle cx="250" cy="250" r="220" fill="rgba(18,21,42,.9)" stroke="rgba(255,255,255,.12)" stroke-width="22"/><circle id="tring" cx="250" cy="250" r="220" fill="none" stroke="#FFD60A" stroke-width="22" stroke-linecap="round" stroke-dasharray="1382" stroke-dashoffset="0"/></svg>
+      <div class="tnum" id="t0">2:00</div><div class="tnum" id="t1">1:59</div><div class="tnum" id="t2">1:58</div>
+    </div>
+    <div id="go" class="center"><div class="btn">Fang einfach an</div></div>
+    <div id="two" class="center">Nur 2 Minuten</div>
+  </div>
+
+  <!-- S8 COMPLETE -->
+  <div id="s8" class="clip" data-start="28.7" data-duration="3.5">
+    <div id="h8" class="center head"><div>Dein Gehirn<br><span class="hl">zieht's durch</span></div></div>
+    <div id="task" class="card">
+      <div class="lbl">Deine Aufgabe</div>
+      <div id="pct">8%</div>
+      <div id="check8"><svg width="90" height="90" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="#06331b" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div id="bar8"><div id="fill8"></div></div>
+    </div>
+    <svg id="burst8" viewBox="0 0 1080 1920"><g id="rays" stroke-linecap="round" stroke-width="14"></g></svg>
+  </div>
+
+  <!-- S9 CTA -->
+  <div id="s9" class="clip" data-start="32.2" data-duration="2.8">
+    <div id="h9" class="center head"><div>Mehr<br><span class="hl">Psycho-Tricks?</span></div></div>
+    <div id="follow" class="center"><div class="btn"><svg width="64" height="64" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/></svg>Folgen</div></div>
+    <div id="ring9"></div>
+    <svg id="hand" viewBox="0 0 150 170"><path d="M55 20 a14 14 0 0 1 28 0 v55 l30 6 a20 20 0 0 1 16 22 l-8 45 a20 20 0 0 1 -20 17 h-45 a20 20 0 0 1 -16 -8 l-28 -40 a13 13 0 0 1 20 -16 l23 18z" fill="#F6F4EE" stroke="#0A0C18" stroke-width="7" stroke-linejoin="round"/></svg>
+  </div>
+
+  </div>
+  <!-- CHROME + CAPTIONS -->
+  <div id="chrome" class="clip" data-start="0" data-duration="35">
+    <div id="topbar" data-layout-ignore><div id="topfill"></div></div>
+    <div id="pill">PSYCHO-TRICK <b>#1</b></div>
+    <div id="caps"></div>
+  </div>
+
+  <audio id="vo" src="assets/voice.wav" data-start="0" data-duration="33.8" data-volume="1"></audio>
+  <audio id="mus" src="assets/music.wav" data-start="0" data-duration="35" data-volume="0.32" data-fade-out="1"></audio>
+  <audio id="fx" src="assets/sfx.wav" data-start="0" data-duration="35" data-volume="0.55"></audio>
+</div>
+
+<script>
+const WORDS = [{"w": "Warum", "s": 0.0, "e": 0.64}, {"w": "kannst", "s": 0.64, "e": 0.92}, {"w": "du", "s": 0.92, "e": 1.1}, {"w": "Serien", "s": 1.1, "e": 1.46}, {"w": "einfach", "s": 1.46, "e": 1.78}, {"w": "nicht", "s": 1.78, "e": 2.04}, {"w": "ausschalten?", "s": 2.04, "e": 2.66}, {"w": "Schuld", "s": 3.24, "e": 3.46}, {"w": "ist", "s": 3.46, "e": 3.7}, {"w": "ein", "s": 3.7, "e": 3.92}, {"w": "Trick", "s": 3.92, "e": 4.1}, {"w": "deines", "s": 4.1, "e": 4.48}, {"w": "Gehirns:", "s": 4.48, "e": 5.04}, {"w": "der", "s": 5.12, "e": 5.28}, {"w": "Zeigarnik-Effekt.", "s": 5.28, "e": 6.16}, {"w": "In", "s": 6.68, "e": 6.76}, {"w": "den", "s": 6.76, "e": 6.96}, {"w": "Zwanzigern", "s": 6.96, "e": 7.82}, {"w": "beobachtete", "s": 7.82, "e": 8.48}, {"w": "die", "s": 8.48, "e": 8.7}, {"w": "Psychologin", "s": 8.7, "e": 9.46}, {"w": "Bluma", "s": 9.46, "e": 9.78}, {"w": "Zeigarnik", "s": 9.78, "e": 10.5}, {"w": "Kellner", "s": 10.5, "e": 10.82}, {"w": "in", "s": 10.82, "e": 11.04}, {"w": "einem", "s": 11.04, "e": 11.18}, {"w": "Berliner", "s": 11.18, "e": 11.52}, {"w": "Café.", "s": 11.52, "e": 12.5}, {"w": "Offene", "s": 12.74, "e": 12.96}, {"w": "Bestellungen", "s": 12.96, "e": 13.5}, {"w": "merkten", "s": 13.5, "e": 13.88}, {"w": "sie", "s": 13.88, "e": 14.04}, {"w": "sich", "s": 14.04, "e": 14.24}, {"w": "perfekt.", "s": 14.24, "e": 14.58}, {"w": "Doch", "s": 15.04, "e": 15.2}, {"w": "sobald", "s": 15.2, "e": 15.72}, {"w": "bezahlt", "s": 15.72, "e": 16.08}, {"w": "war,", "s": 16.08, "e": 16.4}, {"w": "war", "s": 16.44, "e": 16.62}, {"w": "alles", "s": 16.62, "e": 16.82}, {"w": "vergessen.", "s": 16.82, "e": 17.26}, {"w": "Unerledigtes", "s": 17.86, "e": 18.46}, {"w": "bleibt", "s": 18.46, "e": 18.68}, {"w": "im", "s": 18.68, "e": 18.86}, {"w": "Kopf", "s": 18.86, "e": 19.12}, {"w": "hängen.", "s": 19.12, "e": 19.7}, {"w": "Erledigtes", "s": 19.9, "e": 20.48}, {"w": "lässt", "s": 20.48, "e": 20.64}, {"w": "dein", "s": 20.64, "e": 20.82}, {"w": "Gehirn", "s": 20.82, "e": 21.16}, {"w": "los.", "s": 21.16, "e": 21.48}, {"w": "Genau", "s": 22.04, "e": 22.28}, {"w": "deshalb", "s": 22.28, "e": 22.72}, {"w": "endet", "s": 22.72, "e": 23.12}, {"w": "jede", "s": 23.12, "e": 23.34}, {"w": "Folge", "s": 23.34, "e": 23.66}, {"w": "mit", "s": 23.66, "e": 23.8}, {"w": "einem", "s": 23.8, "e": 24.04}, {"w": "Cliffhanger.", "s": 24.04, "e": 24.56}, {"w": "Und", "s": 25.04, "e": 25.2}, {"w": "so", "s": 25.2, "e": 25.32}, {"w": "nutzt", "s": 25.32, "e": 25.52}, {"w": "du", "s": 25.52, "e": 25.58}, {"w": "das", "s": 25.58, "e": 25.7}, {"w": "für", "s": 25.7, "e": 25.94}, {"w": "dich:", "s": 25.94, "e": 26.22}, {"w": "Fang", "s": 26.36, "e": 26.5}, {"w": "einfach", "s": 26.5, "e": 26.82}, {"w": "an.", "s": 26.82, "e": 27.14}, {"w": "Nur", "s": 27.52, "e": 27.74}, {"w": "zwei", "s": 27.74, "e": 28.02}, {"w": "Minuten.", "s": 28.02, "e": 28.4}, {"w": "Dein", "s": 28.85, "e": 29.1}, {"w": "Gehirn", "s": 29.1, "e": 29.68}, {"w": "will", "s": 29.68, "e": 29.82}, {"w": "die", "s": 29.82, "e": 29.96}, {"w": "Aufgabe", "s": 29.96, "e": 30.46}, {"w": "dann", "s": 30.46, "e": 30.74}, {"w": "von", "s": 30.74, "e": 30.9}, {"w": "selbst", "s": 30.9, "e": 31.22}, {"w": "zu", "s": 31.22, "e": 31.4}, {"w": "Ende", "s": 31.4, "e": 31.6}, {"w": "bringen.", "s": 31.6, "e": 32.0}, {"w": "Folge", "s": 32.6, "e": 32.78}, {"w": "für", "s": 32.78, "e": 32.98}, {"w": "mehr", "s": 32.98, "e": 33.18}, {"w": "Psycho-Tricks!", "s": 33.18, "e": 33.8}];
+const tl = gsap.timeline({ paused: true });
+const E = "power3.out", B = "back.out(1.8)";
+
+/* ---------- background drift ---------- */
+tl.fromTo("#b1",{x:0,y:0},{x:260,y:180,duration:35,ease:"sine.inOut"},0);
+tl.fromTo("#b2",{x:0,y:0},{x:-220,y:-260,duration:35,ease:"sine.inOut"},0);
+tl.fromTo("#b3",{x:0,y:0},{x:180,y:-160,duration:35,ease:"sine.inOut"},0);
+tl.fromTo("#grid",{y:0},{y:-360,duration:35,ease:"none"},0);
+tl.fromTo("#topfill",{scaleX:0},{scaleX:1,duration:35,ease:"none"},0);
+tl.from("#pill",{y:-40,opacity:0,duration:.5,ease:E},0.1);
+
+/* ---------- scene helpers ---------- */
+function sceneIn(sel,t){ tl.fromTo(sel,{scale:1.08,opacity:0},{scale:1,opacity:1,duration:.35,ease:E},t); }
+function sceneOut(sel,t){ tl.to(sel,{scale:.94,opacity:0,y:-40,duration:.25,ease:"power2.in"},t-.25); }
+function drift(sel,t,d){ tl.fromTo(sel,{"--z":0},{duration:d},t); }
+
+/* S1 hook 0-3.0 */
+tl.fromTo("#h1",{scale:1.25},{scale:1,duration:.5,ease:"expo.out"},0);
+tl.fromTo("#tv",{y:60,rotation:-2},{y:0,rotation:0,duration:.6,ease:B},0);
+tl.fromTo("#ringc",{strokeDashoffset:0},{strokeDashoffset:402,duration:2.8,ease:"none"},0.2);
+[["#n5",0],["#n4",1.35],["#n3",2.35]].forEach(([s,t],i,a)=>{
+  tl.fromTo(s,{opacity:t===0?1:0,scale:t===0?1:1.6},{opacity:1,scale:1,duration:.18,ease:E},t);
+  if(i<a.length-1) tl.to(s,{opacity:0,duration:.1},a[i+1][1]-.02);
+});
+tl.to("#tv",{x:6,duration:.05,yoyo:true,repeat:5,ease:"none"},1.0);
+sceneOut("#s1 > *",3.0);
+
+/* S2 3.0-6.4 */
+tl.fromTo("#brain",{scale:0,rotation:-20},{scale:1,rotation:0,duration:.6,ease:B},3.05);
+tl.to("#brain",{scale:1.06,duration:.35,yoyo:true,repeat:5,ease:"sine.inOut"},3.7);
+["#p1","#p2","#p3"].forEach((p,i)=>tl.fromTo(p,{width:10,height:10,opacity:.9},{width:900,height:900,opacity:0,duration:1.6,ease:"power2.out"},3.3+i*.55));
+tl.fromTo("#spark",{opacity:0,scale:.3,transformOrigin:"50% 50%"},{opacity:1,scale:1,duration:.3,ease:B},3.9);
+tl.fromTo("#stamp2 .box",{scale:3,opacity:0,rotation:-14},{scale:1,opacity:1,rotation:-4,duration:.32,ease:"expo.in"},4.88);
+tl.to("#s2",{x:-14,duration:.04,yoyo:true,repeat:5,ease:"none"},5.2);
+tl.fromTo("#sub2",{y:30,opacity:0},{y:0,opacity:1,duration:.4,ease:E},3.4);
+sceneOut("#s2 > *",6.4);
+
+/* S3 6.4-12.3 */
+tl.fromTo("#era",{y:80,opacity:0,scale:1.3},{y:0,opacity:1,scale:1,duration:.8,ease:E},6.45);
+tl.fromTo("#berlin",{opacity:0},{opacity:1,duration:.6},6.9);
+tl.fromTo("#cafe",{y:120,opacity:0},{y:0,opacity:1,duration:.7,ease:E},7.0);
+document.querySelectorAll(".steam").forEach((s,i)=>{
+  tl.fromTo(s,{y:20,opacity:0},{y:-30,opacity:.9,duration:1.1,repeat:3,ease:"sine.out",yoyo:false},7.2+i*.3);
+});
+tl.fromTo("#nametag",{x:-900},{x:0,duration:.6,ease:B},8.6);
+tl.fromTo("#avatar",{scale:0},{scale:1,duration:.4,ease:B},8.9);
+tl.to("#cafe",{rotation:-3,duration:1.5,yoyo:true,repeat:2,ease:"sine.inOut",transformOrigin:"50% 100%"},8.0);
+sceneOut("#s3 > *",12.3);
+
+/* S4 12.3-17.6 */
+tl.fromTo("#receipt",{y:900,rotation:6},{y:0,rotation:-1.5,duration:.6,ease:B},12.3);
+[["#r1",12.75],["#r2",13.05],["#r3",13.35]].forEach(([r,t])=>tl.fromTo(r,{opacity:0,x:-60},{opacity:1,x:0,duration:.3,ease:B},t));
+tl.fromTo("#memory",{opacity:0,scale:.6},{opacity:1,scale:1,duration:.35,ease:B},14.2);
+tl.fromTo("#paid",{opacity:0,scale:4,rotation:-30},{opacity:1,scale:1,rotation:-12,duration:.25,ease:"expo.in"},15.4);
+tl.to("#receipt",{x:-10,duration:.04,yoyo:true,repeat:5},15.65);
+tl.to(["#r1","#r2","#r3","#memory"],{opacity:0,y:-40,scale:.9,filter:"blur(14px)",duration:.6,stagger:.1,ease:"power2.in"},16.5);
+sceneOut("#s4 > *",17.6);
+
+/* S5 17.6-21.7 */
+tl.fromTo("#open",{x:-1000},{x:0,duration:.55,ease:B},17.6);
+tl.fromTo("#spin",{rotation:0},{rotation:1080,duration:4.1,ease:"none"},17.6);
+tl.to("#open",{x:8,duration:.06,yoyo:true,repeat:7,ease:"none"},18.6);
+tl.fromTo("#done",{x:1000},{x:0,duration:.55,ease:B},19.55);
+tl.to("#tick5",{strokeDashoffset:0,duration:.35,ease:E},19.95);
+tl.to("#done",{y:-200,opacity:0,scale:.85,duration:.7,ease:"power2.in"},20.85);
+sceneOut("#s5 > *",21.7);
+
+/* S6 21.7-24.9 */
+tl.fromTo("#player",{scale:.6,opacity:0},{scale:1,opacity:1,duration:.5,ease:B},21.7);
+tl.fromTo("#fill6",{scaleX:.55},{scaleX:.985,duration:2.2,ease:"power1.in"},21.9);
+tl.fromTo("#knob6",{x:447},{x:800,duration:2.2,ease:"power1.in"},21.9);
+tl.fromTo("#scene6img",{scale:1},{scale:1.3,duration:2.3,ease:"power1.in"},21.7);
+tl.set("#black6",{opacity:1},24.02);
+[["#g1",-14,8],["#g2",14,-6],["#g3",0,0]].forEach(([g,x,y])=>{
+  tl.fromTo(g,{x:x*3,y:y*2},{x:x,y:y,duration:.25,ease:E},24.02);
+  tl.to(g,{x:"+=10",duration:.05,yoyo:true,repeat:5,ease:"steps(1)"},24.3);
+});
+tl.fromTo("#cliff",{y:-60,opacity:0},{y:0,opacity:1,duration:.4,ease:B},21.85);
+sceneOut("#s6 > *",24.9);
+
+/* S7 24.9-28.7 */
+tl.fromTo("#timer",{scale:0,rotation:-90},{scale:1,rotation:0,duration:.6,ease:B},24.95);
+tl.fromTo("#t0",{opacity:0},{opacity:1,duration:.2},25.1);
+tl.fromTo("#go",{y:200,opacity:0},{y:0,opacity:1,duration:.45,ease:B},25.8);
+tl.to("#go .btn",{scale:.88,duration:.08,yoyo:true,repeat:1},26.4);
+tl.fromTo("#tring",{strokeDashoffset:0},{strokeDashoffset:120,duration:2.2,ease:"none"},26.5);
+tl.set("#t0",{opacity:0},27.3); tl.set("#t1",{opacity:1},27.3);
+tl.set("#t1",{opacity:0},28.3); tl.set("#t2",{opacity:1},28.3);
+tl.fromTo("#two",{opacity:0,y:20},{opacity:1,y:0,duration:.4,ease:E},27.5);
+tl.fromTo("#two",{scale:1},{scale:1.12,duration:.25,yoyo:true,repeat:1},27.9);
+sceneOut("#s7 > *",28.7);
+
+/* S8 28.7-32.2 */
+tl.fromTo("#h8",{y:-80,opacity:0},{y:0,opacity:1,duration:.5,ease:B},28.75);
+tl.fromTo("#task",{y:300,opacity:0},{y:0,opacity:1,duration:.5,ease:B},28.85);
+const pctObj={v:8};
+tl.fromTo(pctObj,{v:8},{v:100,duration:2.3,ease:"power2.inOut",onUpdate:()=>{document.getElementById("pct").textContent=Math.round(pctObj.v)+"%";}},29.3);
+tl.fromTo("#fill8",{scaleX:.08},{scaleX:1,duration:2.3,ease:"power2.inOut"},29.3);
+tl.fromTo("#check8",{opacity:0,scale:0,rotation:-90},{opacity:1,scale:1,rotation:0,duration:.4,ease:B},31.6);
+tl.to("#task",{scale:1.05,duration:.15,yoyo:true,repeat:1},31.6);
+const rays=document.getElementById("rays"), cols=["#FFD60A","#34E07A","#3DE0FF","#FF3D7F"];
+for(let i=0;i<16;i++){
+  const a=i/16*Math.PI*2, cx=880, cy=550;
+  const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+  l.setAttribute("x1",cx+Math.cos(a)*90); l.setAttribute("y1",cy+Math.sin(a)*90);
+  l.setAttribute("x2",cx+Math.cos(a)*150); l.setAttribute("y2",cy+Math.sin(a)*150);
+  l.setAttribute("stroke",cols[i%4]); rays.appendChild(l);
+  tl.fromTo(l,{opacity:0,x:0,y:0},{opacity:1,x:Math.cos(a)*120,y:Math.sin(a)*120,duration:.35,ease:E},31.62);
+  tl.to(l,{opacity:0,duration:.3},31.97);
+}
+sceneOut("#s8 > *",32.2);
+
+/* S9 32.2-35 */
+tl.fromTo("#h9",{scale:1.8,opacity:0},{scale:1,opacity:1,duration:.4,ease:"expo.out"},32.2);
+tl.fromTo("#follow",{scale:0},{scale:1,duration:.45,ease:B},32.45);
+tl.fromTo("#hand",{x:200,y:300,opacity:0},{x:0,y:0,opacity:1,duration:.5,ease:E},32.6);
+tl.to("#hand",{scale:.9,duration:.08,yoyo:true,repeat:1,transformOrigin:"40% 10%"},33.1);
+tl.to("#follow .btn",{scale:.92,duration:.08,yoyo:true,repeat:1},33.1);
+tl.fromTo("#ring9",{opacity:1,scale:.18},{opacity:0,scale:1,duration:.6,ease:E},33.1);
+tl.to("#follow .btn",{scale:1.06,duration:.4,yoyo:true,repeat:3,ease:"sine.inOut"},33.4);
+
+/* ---------- captions (Whisper word timestamps) ---------- */
+const caps=document.getElementById("caps");
+const groups=[]; let cur=[];
+WORDS.forEach((w,i)=>{
+  cur.push(w);
+  const len=cur.map(x=>x.w).join(' ').length; const nx=WORDS[i+1]; const end=/[.,:!?…]$/.test(w.w)||cur.length>=4||(nx&&len+nx.w.length>22);
+  if(end||i===WORDS.length-1){groups.push(cur);cur=[];}
+});
+groups.forEach((g,gi)=>{
+  const el=document.createElement("div"); el.className="cap";
+  g.forEach(w=>{const s=document.createElement("span"); s.textContent=w.w.replace(/[.,]$/,""); el.appendChild(s); w.el=s;});
+  caps.appendChild(el);
+  const st=g[0].s, next=groups[gi+1]?groups[gi+1][0].s:35;
+  const en=Math.min(next, g[g.length-1].e+0.6);
+  tl.fromTo(el,{opacity:0,scale:.7,y:30},{opacity:1,scale:1,y:0,duration:.14,ease:B},st);
+  tl.to(el,{opacity:0,duration:.06},en-.06);
+  g.forEach((w,wi)=>{
+    const we=g[wi+1]?g[wi+1].s:en;
+    tl.fromTo(w.el,{color:"#ffffff",scale:1},{color:"#FFD60A",scale:1.06,duration:.08,ease:"power2.out"},w.s);
+    tl.to(w.el,{color:"#ffffff",scale:1,duration:.08},Math.max(w.s+.1,we-.02));
+  });
+});
+
+window.__timelines = window.__timelines || {};
+window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>
